@@ -236,7 +236,7 @@ b = 0.9
 # length of integration
 T = 221
 # step size
-h = 1
+h = 0.1
 # num of steps (i) needs to be an int
 nsteps = int(T / h)
 
@@ -303,3 +303,50 @@ plt.xlabel('Time (s)')
 plt.ylabel('Energy(J)')
 plt.legend()
 plt.show()
+
+
+#####################################################################################
+"""
+Finding the best method
+"""
+
+energy_diffs = []
+
+energy_diffs = np.append(energy_diffs, np.mean(np.abs(EAnalytical - EEuler)))
+
+energy_diffs = np.append(energy_diffs, np.mean(np.abs(EAnalytical - EIEuler)))
+
+energy_diffs = np.append(energy_diffs, np.mean(np.abs(EAnalytical - EVerlet)))
+
+energy_diffs = np.append(energy_diffs, np.mean(np.abs(EAnalytical - EEc)))
+
+pos = energy_diffs.index(np.min(energy_diffs))
+
+if pos == 0:
+    print('The most accurate method is Euler')
+elif pos == 1:
+    print('The most accurate method is Improved Euler')
+elif pos == 2:
+    print('The most accurate method is Verlet')
+else:
+    print('The most accurate method is Euler Cromer')
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
