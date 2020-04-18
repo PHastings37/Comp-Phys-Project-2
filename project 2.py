@@ -130,7 +130,7 @@ def verlet(m, k, b, nsteps, xv, vv):
 
 
 
-def euler_cormer(m, k, b, nsteps, xec, vec):
+def euler_cromer(m, k, b, nsteps, xec, vec):
     for i in range(nsteps - 1):
         aec = -(k / m) * xec[i] - (b / m) * vec[i]
         vec[i + 1] = vec[i] + aec * h
@@ -236,7 +236,7 @@ b = 0.9
 # length of integration
 T = 221
 # step size
-h = 0.1
+h = 1
 # num of steps (i) needs to be an int
 nsteps = int(T / h)
 
@@ -252,7 +252,7 @@ improv_euler(m, k, b, nsteps, x, v)
 
 verlet(m, k, b, nsteps, x, v)
 
-euler_cormer(m, k, b, nsteps, x, v)
+euler_cromer(m, k, b, nsteps, x, v)
 
 analytical(m, b, h, k, T)
 
@@ -320,16 +320,41 @@ energy_diffs = np.append(energy_diffs, np.mean(np.abs(EAnalytical - EVerlet)))
 
 energy_diffs = np.append(energy_diffs, np.mean(np.abs(EAnalytical - EEc)))
 
-pos = energy_diffs.index(np.min(energy_diffs))
+minimum = np.min(energy_diffs)
+for i in range(len(energy_diffs)):
+    if energy_diffs[i] == minimum:
+        pos = i
+        break
+        
 
 if pos == 0:
     print('The most accurate method is Euler')
+    euler(m, k, np.sqrt(k * m), nsteps, x, v)
+    
+    euler(m, k, 2 * np.sqrt(k * m), nsteps, x, v)
+    
+    euler(m, k, 4 * np.sqrt(k * m), nsteps, x, v)
 elif pos == 1:
     print('The most accurate method is Improved Euler')
+    improv_euler(m, k, np.sqrt(k * m), nsteps, x, v)
+    
+    improv_euler(m, k, 2 * np.sqrt(k * m), nsteps, x, v)
+    
+    improv_euler(m, k, 4 * np.sqrt(k * m), nsteps, x, v)
 elif pos == 2:
     print('The most accurate method is Verlet')
+    verlet(m, k, np.sqrt(k * m), nsteps, x, v)
+    
+    verlet(m, k, 2 * np.sqrt(k * m), nsteps, x, v)
+    
+    verlet(m, k, 4 * np.sqrt(k * m), nsteps, x, v)
 else:
     print('The most accurate method is Euler Cromer')
+    euler_cromer(m, k, np.sqrt(k * m), nsteps, x, v)
+    
+    euler_cromer(m, k, 2 * np.sqrt(k * m), nsteps, x, v)
+    
+    euler_cromer(m, k, 4 * np.sqrt(k * m), nsteps, x, v)
 
 
 
