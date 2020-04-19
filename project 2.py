@@ -233,7 +233,7 @@ def analytical(m, b, h, k, T):
 m = 3.82
 k = 0.61
 b = 0.1
-F = 2
+F = 0.5
 
 # valid = False
 #
