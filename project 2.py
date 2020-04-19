@@ -233,7 +233,8 @@ def analytical(m, b, h, k, T):
 m = 3.82
 k = 0.61
 b = 0.1
-F = -20
+F = 2
+
 # valid = False
 #
 # while valid == False:
@@ -248,7 +249,7 @@ F = -20
 #     b, valid = input_validation(input('What is the value of the damping'))
 
 # length of integration
-T = 221
+T = 200
 # step size
 h = 0.2
 # num of steps (i) needs to be an int
@@ -271,6 +272,9 @@ euler_cromer(m, k, b, nsteps, x, v)
 analytical(m, b, h, k, T)
 
 t = np.arange(0, T, h)
+
+F_sinusoidal = 20 * np.sin(t)
+
 #t= t[:-1]
 
 EulerData = np.zeros((0, 2))
@@ -353,14 +357,14 @@ if pos == 0:
     for i in range(nsteps - 1):
         # calculate a at ste i
         # no array of these as these are not needed for later
-        if i < (nsteps/2):
+        if (nsteps / 2) < i < ((5 * nsteps) / 8):
             
-            ae = -(k / m) * xe[i] - (b / m) * ve[i]
+            ae = -(k / m) * xe[i] - (b / m) * ve[i] + F/m
             # add next value for x and v
             xe[i + 1] = xe[i] + ve[i] * h
             ve[i + 1] = ve[i] + ae * h
         else:
-             ae = -(k / m) * xe[i] - (b / m) * ve[i] + F/m
+             ae = -(k / m) * xe[i] - (b / m) * ve[i] 
              # add next value for x and v
              xe[i + 1] = xe[i] + ve[i] * h
              ve[i + 1] = ve[i] + ae * h
@@ -377,6 +381,23 @@ if pos == 0:
     plt.plot(xe, ve, 'b')
     plt.show()
     
+    for i in range(nsteps -1):
+          ae = -(k / m) * xe[i] - (b / m) * ve[i] + F_sinusoidal[i]/m
+          # add next value for x and v
+          xe[i + 1] = xe[i] + ve[i] * h
+          ve[i + 1] = ve[i] + ae * h
+    
+    plt.figure()     
+    plt.title('Sinusoidal Forced euler')
+    plt.plot(xe, 'b', label='position')
+    plt.plot(ve, 'r', label='velocity')
+    plt.legend()
+    plt.show()
+ 
+    plt.figure()
+    plt.title('Sinusoidal Forced euler')
+    plt.plot(xe, ve, 'b')
+    plt.show()
 elif pos == 1:
     xie = np.zeros(nsteps)
     vie = np.zeros(nsteps)
@@ -390,13 +411,13 @@ elif pos == 1:
     for i in range(nsteps - 1):
         # calculate a at ste i
         # no array of these as these are not needed for later
-        if i < (nsteps/2):
+        if (nsteps / 2) < i < ((5 * nsteps) / 8):
             aie = -(k / m) * xie[i] - (b / m) * vie[i]
             # add next value for x and v
-            xie[i + 1] = xie[i] + vie[i] * h + 0.5 * h ** 2 * aie
+            xie[i + 1] = xie[i] + vie[i] * h + 0.5 * h ** 2 * aie + F/m
             vie[i + 1] = vie[i] + aie * h
         else:
-            aie = -(k / m) * xie[i] - (b / m) * vie[i] + F/m
+            aie = -(k / m) * xie[i] - (b / m) * vie[i] 
             # add next value for x and v
             xie[i + 1] = xie[i] + vie[i] * h + 0.5 * h ** 2 * aie
             vie[i + 1] = vie[i] + aie * h
@@ -411,6 +432,25 @@ elif pos == 1:
     plt.title(' Forced Improved euler')
     plt.plot(xie, vie, 'b')
     plt.show()
+    
+    for i in range(nsteps - 1):
+         aie = -(k / m) * xie[i] - (b / m) * vie[i] + F_sinusoidal[i] / m
+         # add next value for x and v
+         xie[i + 1] = xie[i] + vie[i] * h + 0.5 * h ** 2 * aie
+         vie[i + 1] = vie[i] + aie * h
+         
+    plt.figure()     
+    plt.title('Sinusodial Forced Improved euler')
+    plt.plot(xie, 'b', label='position')
+    plt.plot(vie, 'r', label='velocity')
+    plt.legend()
+    plt.show()
+ 
+    plt.figure()
+    plt.title(' Forced Improved euler')
+    plt.plot(xie, vie, 'b')
+    plt.show()
+        
 elif pos == 2:
     xv = np.zeros(nsteps)
     vv = np.zeros(nsteps)
@@ -432,11 +472,11 @@ elif pos == 2:
     xv[1] = xv[0] + (h * vv[0]) + 0.5 * h**2 * a_nought
 
     for i in range(nsteps - 2):
-        if i != (round(nsteps/2)):
-            xv[i + 2] = A * xv[i + 1] + B * xv[i]
+        if (nsteps / 2) < i < ((5 * nsteps) / 8):
+            xv[i + 2] = A * xv[i + 1] + B * xv[i] + ((2 * h**2) / D) * F
             vv[i + 1] = (xv[i + 2] - xv[i]) / (2 * h)
         else:
-            xv[i + 2] = A * xv[i + 1] + B * xv[i] + ((2 * h**2) / D) * F
+            xv[i + 2] = A * xv[i + 1] + B * xv[i] 
             vv[i + 1] = (xv[i + 2] - xv[i]) / (2 * h)
 
     
@@ -452,6 +492,22 @@ elif pos == 2:
     plt.plot(xv, vv, 'b')
     plt.show()
         
+    for i in range(nsteps - 2):
+        xv[i + 2] = A * xv[i + 1] + B * xv[i] + ((2 * h**2) / D) * F_sinusoidal[i]
+        vv[i + 1] = (xv[i + 2] - xv[i]) / (2 * h)
+
+    plt.figure()     
+    plt.title('Sinusoidal Forced Verlet')
+    plt.plot(xv, 'b', label='position')
+    plt.plot(vv, 'r', label='velocity')
+    plt.legend()
+    plt.show()
+ 
+    plt.figure()
+    plt.title('Sinusoidal Forced Verlet')
+    plt.plot(xv, vv, 'b')
+    plt.show()
+    
 else:
     xec = np.zeros(nsteps)
     vec = np.zeros(nsteps)
@@ -463,12 +519,12 @@ else:
     euler_cromer(m, k, 4 * np.sqrt(k * m), nsteps, x, v)
     
     for i in range(nsteps - 1):
-        if i < (nsteps/2):
-            aec = -(k / m) * xec[i] - (b / m) * vec[i]
+        if (nsteps / 2) < i < ((5 * nsteps) / 8):
+            aec = -(k / m) * xec[i] - (b / m) * vec[i] + F/m
             vec[i + 1] = vec[i] + aec * h
             xec[i + 1] = xec[i] + h * vec[i + 1]
         else:
-            aec = -(k / m) * xec[i] - (b / m) * vec[i] + F/m
+            aec = -(k / m) * xec[i] - (b / m) * vec[i] 
             vec[i + 1] = vec[i] + aec * h
             xec[i + 1] = xec[i] + h * vec[i + 1]
             
@@ -484,9 +540,22 @@ else:
     plt.plot(xec, vec, 'b')
     plt.show()
 
+    for i in range(nsteps - 1):
+        aec = -(k / m) * xec[i] - (b / m) * vec[i] + F_sinusoidal[i] / m
+        vec[i + 1] = vec[i] + aec * h
+        xec[i + 1] = xec[i] + h * vec[i + 1]
 
-
-
+    plt.figure()     
+    plt.title('Sinusoidal Forced euler cromer')
+    plt.plot(xec, 'b', label='position')
+    plt.plot(vec, 'r', label='velocity')
+    plt.legend()
+    plt.show()
+ 
+    plt.figure()
+    plt.title('Sinusoidal Forced euler cromer')
+    plt.plot(xec, vec, 'b')
+    plt.show()
 
 
 
