@@ -249,7 +249,7 @@ F = 0.5
 #     b, valid = input_validation(input('What is the value of the damping'))
 
 # length of integration
-T = 200
+T = 1000
 # step size
 h = 0.2
 # num of steps (i) needs to be an int
@@ -273,7 +273,7 @@ analytical(m, b, h, k, T)
 
 t = np.arange(0, T, h)
 
-F_sinusoidal = 20 * np.sin(t)
+F_sinusoidal = 20 * np.sin(0.942478* t)
 
 #t= t[:-1]
 
@@ -298,10 +298,6 @@ EulerCromerData = df.to_numpy()
 
 df = pd.read_csv('AnalyticalData.csv', index_col=0)
 AnalyticalData = df.to_numpy()
-
-
-
-
 
 EEuler = 0.5 * k * EulerData[:,0] ** 2 + 0.5 * m * EulerData[:,1] ** 2
 EIEuler = 0.5 * k * ImpEulerData[:,0] ** 2 + 0.5 * m * ImpEulerData[:,1] ** 2
@@ -556,19 +552,3 @@ else:
     plt.title('Sinusoidal Forced euler cromer')
     plt.plot(xec, vec, 'b')
     plt.show()
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
