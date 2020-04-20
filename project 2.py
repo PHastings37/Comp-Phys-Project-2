@@ -11,6 +11,11 @@ import os.path as path
 import pandas as pd
 
 def input_validation(variable):
+    """
+    Validates the three inputs of the program makes sure that they are numbers 
+    above 0
+    """
+    
     try:
         value = float(variable)
     except ValueError:
@@ -24,6 +29,9 @@ def input_validation(variable):
 
 
 def euler(m, k, b, nsteps, xe, ve):
+    """
+    Function for calculating Euler's method
+    """
     for i in range(nsteps - 1):
         # calculate a at ste i
         # no array of these as these are not needed for later
@@ -33,6 +41,7 @@ def euler(m, k, b, nsteps, xe, ve):
         ve[i + 1] = ve[i] + ae * h
 
     eulerdata = np.column_stack((xe, ve))
+    #makes it easier to manage if theres only one array being handled
 
     if path.exists('EulerData.csv'):
         f = open('EulerData.csv', 'w')
@@ -62,6 +71,10 @@ def euler(m, k, b, nsteps, xe, ve):
 
 
 def improv_euler(m, k, b, nsteps, xie, vie):
+    """
+    Function for plotting the improved Euler's method
+    """
+    
     for i in range(nsteps - 1):
         # calculate a at ste i
         # no array of these as these are not needed for later
@@ -98,11 +111,14 @@ def improv_euler(m, k, b, nsteps, xie, vie):
 
 
 def verlet(m, k, b, nsteps, xv, vv):
+    """
+    Function for plotting Verlet's method
+    """
     D = 2 * m + b * h
     A = 2 * ((2 * m - k * h ** 2) / D)
     B = (b * h - 2 * m) / D
     a_nought = -(k / m) *xv[0] - (b / m) * vv[0]
-    # use euler for first step
+    # use euler-cromer for first step, gives the a higher accuracy than imp Euler or Euler
     xv[1] = xv[0] + (h * vv[0]) + 0.5 * h**2 * a_nought
 
     for i in range(nsteps - 2):
@@ -121,7 +137,7 @@ def verlet(m, k, b, nsteps, xv, vv):
     
     f.close()
     
-
+    
     plt.figure()
     plt.title('Verlet')
     plt.plot(xv, 'b', label='position')
@@ -139,6 +155,9 @@ def verlet(m, k, b, nsteps, xv, vv):
 
 
 def euler_cromer(m, k, b, nsteps, xec, vec):
+    """
+    Function for plotting the Euler-Cromer method
+    """
     for i in range(nsteps - 1):
         aec = -(k / m) * xec[i] - (b / m) * vec[i]
         vec[i + 1] = vec[i] + aec * h
@@ -173,6 +192,10 @@ def euler_cromer(m, k, b, nsteps, xec, vec):
  
 
 def analytical(m, b, h, k, T):
+    """
+    Function for the analytical method
+    """
+    
     gamma = b / m
     determinant = gamma**2 - 4 * k / m
     time_array = np.arange(0, T, h)
@@ -194,7 +217,7 @@ def analytical(m, b, h, k, T):
         B = - A
 
         xa = A * np.exp(alpha1 * time_array) + B * np.exp(alpha2 * time_array)
-        va = A * alpha1 * np.exp(alpha1 * time_array) + B * alpha2 * np.exp(alpha2 * time_array)
+        va = A * alpha1 * np.exp(alpha1 * time_array)+ B * alpha2 * np.exp(alpha2 * time_array)
 
 
 
@@ -230,28 +253,32 @@ def analytical(m, b, h, k, T):
 # user inputs of physical parameters
 
 
-m = 3.82
-k = 0.61
-b = 0.1
-F = 0.5
 
-# valid = False
-#
-# while valid == False:
-#     m, valid = input_validation(input('What is the value of the mass'))
-#
-# valid = False
-# while valid == False:
-#     k, valid = input_validation(input('What is the value of the spring constant'))
-#
-# valid = False
-# while valid == False:
-#     b, valid = input_validation(input('What is the value of the damping'))
+F = 0.1 # can be anything, looks good using this value though
+
+valid = False
+
+while valid == False:
+     m, valid = input_validation(input('What is the value of the mass'))
+
+valid = False
+while valid == False:
+     k, valid = input_validation(input('What is the value of the spring constant'))
+
+valid = False
+while valid == False:
+     b, valid = input_validation(input('What is the value of the damping'))
 
 # length of integration
-T = 1000
+T = 100
 # step size
-h = 0.2
+h = 1
+"""
+The length and step size can be varied, but this combination shows the methods
+come to an almost complete stop before the integration ends, as well as 
+demonstrating the difference in accuracys of the different methods
+"""
+
 # num of steps (i) needs to be an int
 nsteps = int(T / h)
 
@@ -273,10 +300,10 @@ analytical(m, b, h, k, T)
 
 t = np.arange(0, T, h)
 
-F_sinusoidal = 20 * np.sin(0.942478* t)
+frequency = 1 # frequency was varied here to investigate the resonance
+F_sinusoidal = 20 * np.sin(frequency * t)
 
-#t= t[:-1]
-
+#initalises all the arrays for the energy calculations
 EulerData = np.zeros((0, 2))
 ImpEulerData = np.zeros((0, 2))
 VerletData = np.zeros((0, 2))
@@ -305,8 +332,6 @@ EVerlet = 0.5 * k * VerletData[:,0] ** 2 + 0.5 * m * VerletData[:,1] ** 2
 EEc = 0.5 * k * EulerCromerData[:,0] ** 2 + 0.5 * m * EulerCromerData[:,1] ** 2
 EAnalytical = 0.5 * k * AnalyticalData[:,0] ** 2 + 0.5 * m * AnalyticalData[:,1] ** 2
 
-#EAnalytical = EAnalytical[:-1]
-
 plt.figure()
 plt.plot(t, EEuler, label='Euler')
 plt.plot(t, EIEuler, label='Improved Euler')
@@ -321,6 +346,9 @@ plt.show()
 
 """
 Finding the best method
+Done by finding the average distance between the analytical method and each of 
+the numerical methods, Verlet is the best method, with an average distance 
+nearly 100 times smaller than the next best one(Euler-Cromer)
 """
 
 energy_diffs = []
@@ -333,13 +361,20 @@ energy_diffs = np.append(energy_diffs, np.mean(np.abs(EAnalytical - EVerlet)))
 
 energy_diffs = np.append(energy_diffs, np.mean(np.abs(EAnalytical - EEc)))
 
+
+#Small algorithm to determine which is the most accurate
 minimum = np.min(energy_diffs)
 for i in range(len(energy_diffs)):
     if energy_diffs[i] == minimum:
         pos = i
         break
         
-
+"""
+The below investigates the use of forces and pushes with different methods, 
+but only for the 'best method' it was found that for extereme cases for high 
+step size and damping, the best method changed, so this will still investigate 
+for the appropriate method
+"""
 if pos == 0:
     xe = np.zeros(nsteps)
     ve = np.zeros(nsteps)
@@ -351,11 +386,10 @@ if pos == 0:
     euler(m, k, 4 * np.sqrt(k * m), nsteps, x, v)
     
     for i in range(nsteps - 1):
-        # calculate a at ste i
-        # no array of these as these are not needed for later
+        # Only adds the force in the region specified, resumes as before after
         if (nsteps / 2) < i < ((5 * nsteps) / 8):
-            
-            ae = -(k / m) * xe[i] - (b / m) * ve[i] + F/m
+            #The +F/m is the external force being added
+            ae = -(k / m) * xe[i] - (b / m) * ve[i] + F/m 
             # add next value for x and v
             xe[i + 1] = xe[i] + ve[i] * h
             ve[i + 1] = ve[i] + ae * h
@@ -454,11 +488,16 @@ elif pos == 2:
     vv[0] = -1
     
     print('The most accurate method is Verlet')
+    """
+    the below code prints graphs for Verlet's method for the cases of half, 
+    double and exactly crtical damping
+    """
     verlet(m, k, np.sqrt(k * m), nsteps, x, v)
     
     verlet(m, k, 2 * np.sqrt(k * m), nsteps, x, v)
     
     verlet(m, k, 4 * np.sqrt(k * m), nsteps, x, v)
+    
     
     D = 2 * m + b * h
     A = 2 * ((2 * m - k * h ** 2) / D)
@@ -475,7 +514,13 @@ elif pos == 2:
             xv[i + 2] = A * xv[i + 1] + B * xv[i] 
             vv[i + 1] = (xv[i + 2] - xv[i]) / (2 * h)
 
-    
+    """
+    The above code works  to add a force for a few oscillations in the middle 
+    of the time. It is observed that the postion jumps drastically while the 
+    velocity does change, but only slightly. after the 'push', the graph 
+    returns to normal very quickly without the driving force. The same was done 
+    with a negative force, and the exact same was seen but inverted
+    """
     plt.figure()     
     plt.title('Forced Verlet')
     plt.plot(xv, 'b', label='position')
@@ -488,7 +533,15 @@ elif pos == 2:
     plt.plot(xv, vv, 'b')
     plt.show()
         
-    for i in range(nsteps - 2):
+    
+    """
+    This last part plots a graph is there is a sinusoidal force acting 
+    throughout the duration of the run time, it is seen that at the start there
+    is a transient period where the amplitude of the position and velocity 
+    varies, but after a few oscillations it becomes constant. Measuring this 
+    amplitude after the transient period can be used to investigate resonance
+    """
+    for i in range(nsteps - 12):
         xv[i + 2] = A * xv[i + 1] + B * xv[i] + ((2 * h**2) / D) * F_sinusoidal[i]
         vv[i + 1] = (xv[i + 2] - xv[i]) / (2 * h)
 
